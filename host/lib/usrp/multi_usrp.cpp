@@ -1196,22 +1196,28 @@ private:
     // Assumption is that all mboards use the same link
     bool _check_link_rate(const stream_args_t &args, bool is_tx) {
         bool link_rate_is_ok = true;
-        size_t bytes_per_sample = convert::get_bytes_per_item(args.otw_format);
         double max_link_rate = 0;
         double sum_rate = 0;
         BOOST_FOREACH(const size_t chan, args.channels) {
             mboard_chan_pair mcp = is_tx ? tx_chan_to_mcp(chan) : rx_chan_to_mcp(chan);
+            std::string otw_format = args.otw_format;
+            if (otw_format.empty()) {
+                otw_format = _tree->exists(mb_root(mcp.mboard) / "default_otw_format")
+                             ? _tree->access<std::string>(mb_root(mcp.mboard) / "default_otw_format").get()
+                             : "sc16";
+            }
+            size_t bytes_per_sample = convert::get_bytes_per_item(otw_format);
             if (_tree->exists(mb_root(mcp.mboard) / "link_max_rate")) {
                 max_link_rate = std::max(
                     max_link_rate,
                    _tree->access<double>(mb_root(mcp.mboard) / "link_max_rate").get()
                 );
             }
-            sum_rate += is_tx ? get_tx_rate(chan) : get_rx_rate(chan);
+            sum_rate += (is_tx ? get_tx_rate(chan) : get_rx_rate(chan)) * bytes_per_sample;
         }
-        if (max_link_rate > 0 and (max_link_rate / bytes_per_sample) < sum_rate) {
+        if (max_link_rate > 0 and max_link_rate < sum_rate) {
             UHD_MSG(warning) << boost::format(
-                "The total sum of rates (%f MSps on %u channels) exceeds the maximum capacity of the connection.\n"
+                "The total sum of rates (%f MBit/s on %u channels) exceeds the maximum capacity of the connection.\n"
                 "This can cause %s."
             ) % (sum_rate/1e6) % args.channels.size() % (is_tx ? "underruns (U)" : "overflows (O)")  << std::endl;
             link_rate_is_ok = false;

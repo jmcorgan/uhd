@@ -354,9 +354,13 @@ void x300_impl::setup_mb(const size_t mb_i, const uhd::device_addr_t &dev_addr)
     const fs_path mb_path = "/mboards/"+boost::lexical_cast<std::string>(mb_i);
     mboard_members_t &mb = _mb[mb_i];
 
+    // Set default OTW format
+    _tree->create<std::string>(mb_path / "default_otw_format").set("sc16");
+
     mb.addr = dev_addr.has_key("resource") ? dev_addr["resource"] : dev_addr["addr"];
     mb.xport_path = dev_addr.has_key("resource") ? "nirio" : "eth";
     mb.if_pkt_is_big_endian = mb.xport_path != "nirio";
+
 
     if (mb.xport_path == "nirio")
     {

@@ -336,6 +336,8 @@ b200_impl::b200_impl(const device_addr_t &device_addr)
     );
     while (_data_transport->get_recv_buff(0.0)){} //flush ctrl xport
     _demux = recv_packet_demuxer_3000::make(_data_transport);
+    // Default OTW format
+    _tree->create<std::string>(mb_path / "default_otw_format").set("sc16");
 
     ////////////////////////////////////////////////////////////////////
     // Init codec - turns on clocks

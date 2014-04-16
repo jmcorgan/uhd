@@ -258,8 +258,8 @@ rx_streamer::sptr b200_impl::get_rx_stream(const uhd::stream_args_t &args_)
 {
     stream_args_t args = args_;
 
-    //setup defaults for unspecified values
-    if (args.otw_format.empty()) args.otw_format = "sc16";
+    //setup defaults for unspecified values (is configured during setup)
+    if (args.otw_format.empty()) args.otw_format = _tree->access<std::string>("/mboards/0/default_otw_format").get();
     args.channels = args.channels.empty()? std::vector<size_t>(1, 0) : args.channels;
 
     check_streamer_args(args, this->get_tick_rate(), "RX");
@@ -363,8 +363,8 @@ tx_streamer::sptr b200_impl::get_tx_stream(const uhd::stream_args_t &args_)
 {
     stream_args_t args = args_;
 
-    //setup defaults for unspecified values
-    if (args.otw_format.empty()) args.otw_format = "sc16";
+    //setup defaults for unspecified values (is configured during setup)
+    if (args.otw_format.empty()) args.otw_format = _tree->access<std::string>("/mboards/0/default_otw_format").get();
     args.channels = args.channels.empty()? std::vector<size_t>(1, 0) : args.channels;
 
     check_streamer_args(args, this->get_tick_rate(), "TX");

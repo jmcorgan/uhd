@@ -354,7 +354,8 @@ rx_streamer::sptr x300_impl::get_rx_stream(const uhd::stream_args_t &args_)
     {
         throw uhd::value_error("x300_impl::get_rx_stream only supports otw_format sc16");
     }
-    args.otw_format = "sc16";
+    // Default format is configured during setup
+    args.otw_format = _tree->access<std::string>("/mboards/0/default_otw_format").get();
     args.channels = args.channels.empty()? std::vector<size_t>(1, 0) : args.channels;
 
     boost::shared_ptr<sph::recv_packet_streamer> my_streamer;
@@ -534,7 +535,8 @@ tx_streamer::sptr x300_impl::get_tx_stream(const uhd::stream_args_t &args_)
     {
         throw uhd::value_error("x300_impl::get_rx_stream only supports otw_format sc16");
     }
-    args.otw_format = "sc16";
+    // Default format is configured during setup
+    args.otw_format = _tree->access<std::string>("/mboards/0/default_otw_format").get();
     args.channels = args.channels.empty()? std::vector<size_t>(1, 0) : args.channels;
 
     //shared async queue for all channels in streamer
